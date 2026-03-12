@@ -94,11 +94,18 @@
 
 ### 支援フロー
 1. リターン選択
-2. 支援者情報入力
+2. ゲスト支援フォーム入力
 3. Stripe Checkout へ遷移
 4. 決済成功
 5. Webhook で注文確定
 6. 完了メール送信
+
+支援時の入力項目:
+- 名前
+- ニックネーム
+- メールアドレス
+- 電話番号（任意）
+- 住所（返礼品発送が必要な場合のみ必須）
 
 ## DB 設計
 ### `profiles`
@@ -176,6 +183,7 @@
 - `supporter_email text`
 - `supporter_name text`
 - `supporter_nickname text`
+- `supporter_phone text`
 - `message text`
 - `amount_total integer`
 - `currency text`

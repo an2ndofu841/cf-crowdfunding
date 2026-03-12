@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## CF Crowdfunding
+
+生誕ライブ向けの、所属タレント専用クラウドファンディングサイトの初期雛形です。
+
+技術構成:
+- `Next.js (App Router)`
+- `Vercel`
+- `Supabase`
+- `Stripe Checkout`
 
 ## Getting Started
 
-First, run the development server:
+1. 依存関係をインストール
+2. `.env.example` を元に `.env.local` を作成
+3. `Supabase` と `Stripe` のキーを設定
+4. 開発サーバーを起動
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 実装済みの土台
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 公開トップページ
+- 案件一覧ページ
+- 案件詳細ページ
+- 会員登録なしで使えるゲスト支援フォーム
+- `Supabase Auth` に接続するログイン画面
+- ログイン保護つきダッシュボード
+- ログアウトボタン
+- セッション反映用 `middleware`
+- `POST /api/checkout`
+- `POST /api/stripe/webhook`
+- `Supabase` 接続ユーティリティ
+- 初回 migration
 
-## Learn More
+## 環境変数
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
 
-## Deploy on Vercel
+RESEND_API_KEY=
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Supabase
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+初回スキーマは `supabase/migrations/0001_initial_schema.sql` にあります。
+
+主なテーブル:
+- `profiles`
+- `talents`
+- `campaigns`
+- `campaign_rewards`
+- `orders`
+- `order_items`
+- `shipping_addresses`
+- `campaign_updates`
+- `staff_approvals`
+
+認証まわり:
+- `auth.users` 作成時に `profiles` を自動生成
+- `profiles.role` で `super_admin / staff / talent / supporter` を管理
+- `dashboard` はログイン必須
+- 支援者は会員登録なしで支援可能
+
+## Stripe
+
+初期段階では、支援前にゲストフォームで以下を入力してから `Stripe Checkout` に進む構成です。
+
+- 名前
+- ニックネーム
+- メールアドレス
+- 電話番号（任意）
+- 住所（配送あり返礼品のみ必須）
+
+本番運用では以下を進めてください。
+
+- `Supabase` 上の案件 / リターンを参照して Checkout を生成する
+- `Webhook` で注文確定する
+- 完了メール送信を追加する
+- 海外配送が必要なリターンだけ住所回収を有効化する
+
+## ドキュメント
+
+- 設計メモ: `docs/crowdfunding-mvp-plan.md`
+
+## Next Steps
+
+1. `Supabase Auth` のログイン接続
+2. 案件 CRUD
+3. リターン管理
+4. `Webhook` での注文保存
+5. スタッフ承認フロー
